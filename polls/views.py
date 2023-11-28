@@ -1,5 +1,4 @@
-from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from .models import Question
 
@@ -14,11 +13,10 @@ def index(request):
   return render(request, "polls/index.html", context)
 
 def detail(request, question_id):
-  try:
-    question = Question.objects.get(pk=question_id)
-  except Question.DoesNotExist:
-    raise Http404("Question does not exist")
-  
+  # 만약 객체가 존재하지 않으면 Http404 예외 발생
+  question = get_object_or_404(Question, pk=question_id)
+  # 모든 객체를 가져오고 싶으면 => get_list_or_404
+
   return render(request, "polls/detail.html", {"question": question})
 
 def results(request, question_id):
