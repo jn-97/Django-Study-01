@@ -1,4 +1,7 @@
+from typing import Any
+from django.db import models
 from django.http import HttpResponseRedirect
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -7,17 +10,19 @@ from .models import Choice, Question
 # Create your views here.
 class IndexView(generic.ListView):
   template_name = "polls/index.html"
-  # ListView의 경우 자동으로 생성되는 컨텍스트 변수는 question_list
-  # 이것을 덮어 쓰려면 context_object_name 속성을 제공하고, 
-  # 대신에 latest_question_list 를 사용하도록 지정
   context_object_name = "latest_question_list"
 
   def get_queryset(self):
-    return Question.objects.order_by("-pub_date")[:5]
+    return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
 
 class DetailView(generic.DetailView):
+
   model = Question
   template_name = "polls/detail.html"
+
+def get_queryset(self):  
+  return Question.objects.filter(pub_date__lte=timezone.now())
+
 
 class ResultsView(generic.DetailView):
   model = Question
