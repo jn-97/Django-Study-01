@@ -1,29 +1,27 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.views import generic
 from .models import Choice, Question
 
 # Create your views here.
-def index(request):
-  latest_question_list = Question.objects.order_by("-pub_date")[:5]
-  
-  context = {
-    "latest_question_list": latest_question_list,
-  }
+class IndexView(generic.ListView):
+  template_name = "polls/index.html"
+  # ListView의 경우 자동으로 생성되는 컨텍스트 변수는 question_list
+  # 이것을 덮어 쓰려면 context_object_name 속성을 제공하고, 
+  # 대신에 latest_question_list 를 사용하도록 지정
+  context_object_name = "latest_question_list"
 
-  return render(request, "polls/index.html", context)
+  def get_queryset(self):
+    return Question.objects.order_by("-pub_date")[:5]
 
-def detail(request, question_id):
-  # 만약 객체가 존재하지 않으면 Http404 예외 발생
-  question = get_object_or_404(Question, pk=question_id)
-  # 모든 객체를 가져오고 싶으면 => get_list_or_404
+class DetailView(generic.DetailView):
+  model = Question
+  template_name = "polls/detail.html"
 
-  return render(request, "polls/detail.html", {"question": question})
-
-def results(request, question_id):
-  question = get_object_or_404(Question, pk=question_id)
-
-  return render(request, "polls/results.html", {"question": question})
+class ResultsView(generic.DetailView):
+  model = Question
+  template_name = "polls/results.html"
 
 def vote(request, question_id):
   question = get_object_or_404(Question, pk=question_id)
